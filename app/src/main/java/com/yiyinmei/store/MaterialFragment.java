@@ -20,20 +20,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.yiyinmei.store.beans.ProductInfo;
-import com.yiyinmei.store.beans.SalaryInfo;
 import com.yiyinmei.store.data.DataBaseUtils;
 import com.yiyinmei.store.data.MySqliteDatabase;
 import com.yiyinmei.store.data.ProductRecycleBaseAdaper;
 
 import java.util.ArrayList;
 
-public class CountFragment extends Fragment implements ProductRecycleBaseAdaper.OnItemClickListener, View.OnClickListener{
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.layout_count,container,false);
-    }
-    private ArrayList<SalaryInfo> salaryInfoList = new ArrayList<>(20);
+public class MaterialFragment extends Fragment implements ProductRecycleBaseAdaper.OnItemClickListener, View.OnClickListener{
+
+    private ArrayList<ProductInfo> mMaterialInfoList = new ArrayList<>(20);
     private RecyclerView recycleView;
     ProductRecycleBaseAdaper adaper;
     private int mPosition;
@@ -42,8 +37,13 @@ public class CountFragment extends Fragment implements ProductRecycleBaseAdaper.
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        salaryInfoList = queryAllProduct();
-        adaper = new ProductRecycleBaseAdaper(salaryInfoList, this);
+        mMaterialInfoList = queryAllProduct();
+        adaper = new ProductRecycleBaseAdaper(mMaterialInfoList, this);
+    }
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.layout_material,container,false);
     }
 
     @Override
@@ -71,33 +71,31 @@ public class CountFragment extends Fragment implements ProductRecycleBaseAdaper.
         super.onResume();
     }
 
-    private ArrayList<SalaryInfo> queryAllProduct() {
+    private ArrayList<ProductInfo> queryAllProduct() {
         MySqliteDatabase database = new MySqliteDatabase(this.getActivity());
-        Cursor cursor = database.getReadableDatabase().query("salary", null, null, null, null, null, null);
+        Cursor cursor = database.getReadableDatabase().query("material", null, null, null, null, null, null);
         if (cursor != null) {
-            salaryInfoList.clear();
+            mMaterialInfoList.clear();
             while (cursor.moveToNext()) {
                 int _id = cursor.getColumnIndex("_id");
                 int name = cursor.getColumnIndex("name");
-                int number = cursor.getColumnIndex("number");
-                int salary = cursor.getColumnIndex("salary");
+                int store = cursor.getColumnIndex("store");
                 int event = cursor.getColumnIndex("event");
 
                 int infoId = cursor.getInt(_id);
                 String infoName = cursor.getString(name);
-                String infonumber = cursor.getString(number);
-                String infosalary = cursor.getString(salary);
+                int infoStore = cursor.getInt(store);
                 String infoEvent = cursor.getString(event);
 
-                Log.e("sunming", "_id " + infoId + " name " + infoName + " number " + infonumber+" salary "+salary);
-                SalaryInfo salaryInfo = new SalaryInfo(infoId, infoName, infonumber, infosalary,infoEvent);
-                salaryInfoList.add(salaryInfo);
+                Log.e("sunming", "_id " + infoId + " name " + infoName + " store " + infoStore);
+                ProductInfo productInfo = new ProductInfo(infoId, infoName, infoStore, infoEvent);
+                mMaterialInfoList.add(productInfo);
             }
         }
         if (adaper !=null){
             adaper.notifyDataSetChanged();
         }
-        return salaryInfoList;
+        return mMaterialInfoList;
     }
 
     private void addProductInfoItem(String name,int number) {
@@ -106,7 +104,7 @@ public class CountFragment extends Fragment implements ProductRecycleBaseAdaper.
         contentValues.put("name",name);
         contentValues.put("store",number);
         contentValues.put("event","第一次添加");
-        DataBaseUtils.insert(database,"salary",contentValues);
+        DataBaseUtils.insert(database,"material",contentValues);
         queryAllProduct();
     }
 
@@ -132,8 +130,8 @@ public class CountFragment extends Fragment implements ProductRecycleBaseAdaper.
     private void incressNumber(int number) {
         MySqliteDatabase database = new MySqliteDatabase(this.getActivity());
         ContentValues contentValues = new ContentValues();
-        contentValues.put("store", salaryInfoList.get(mPosition).getStore() + number);
-        DataBaseUtils.update(database,"salary", contentValues, "_id = ?", new String[]{salaryInfoList.get(mPosition).getmId() + ""});
+        contentValues.put("store", mMaterialInfoList.get(mPosition).getStore() + number);
+        DataBaseUtils.update(database,"material", contentValues, "_id = ?", new String[]{mMaterialInfoList.get(mPosition).getmId() + ""});
         queryAllProduct();
         adaper.notifyDataSetChanged();
 
@@ -142,18 +140,16 @@ public class CountFragment extends Fragment implements ProductRecycleBaseAdaper.
     private void reduceTo(int number) {
         MySqliteDatabase database = new MySqliteDatabase(this.getActivity());
         ContentValues contentValues = new ContentValues();
-        contentValues.put("store", salaryInfoList.get(mPosition).getStore() - number);
-        DataBaseUtils.update(database,"salary", contentValues, "_id = ?", new String[]{salaryInfoList.get(mPosition).getmId() + ""});
+        contentValues.put("store", mMaterialInfoList.get(mPosition).getStore() - number);
+        DataBaseUtils.update(database,"material", contentValues, "_id = ?", new String[]{mMaterialInfoList.get(mPosition).getmId() + ""});
         queryAllProduct();
         adaper.notifyDataSetChanged();
 
     }
 
-    private void deleteItem(int positon) {
+    private void deleteItem() {
         MySqliteDatabase database = new MySqliteDatabase(this.getActivity());
-        ContentValues contentValues = new ContentValues();
-        contentValues.put("store", salaryInfoList.get(mPosition).getmId());
-        DataBaseUtils.delete(database,"salary","_id = ?", new String[]{salaryInfoList.get(mPosition).getmId() + ""});
+        DataBaseUtils.delete(database,"material","_id = ?", new String[]{mMaterialInfoList.get(mPosition).getmId() + ""});
         queryAllProduct();
         adaper.notifyDataSetChanged();
 
@@ -169,6 +165,7 @@ public class CountFragment extends Fragment implements ProductRecycleBaseAdaper.
     @Override
     public void onLongClick(int position) {
         Toast.makeText(getActivity(), "onLongClick" + position, Toast.LENGTH_SHORT).show();
+        mPosition = position;
         new AlertDialog.Builder(getActivity())
                 .setTitle("")
                 .setMessage("删除该条目吗？")
@@ -184,7 +181,7 @@ public class CountFragment extends Fragment implements ProductRecycleBaseAdaper.
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         Toast.makeText(getActivity(), "确定", Toast.LENGTH_SHORT).show();
-                        deleteItem(position);
+                        deleteItem();
                     }
                 }).create().show();
     }
@@ -202,4 +199,6 @@ public class CountFragment extends Fragment implements ProductRecycleBaseAdaper.
 
         void addProductItem(String name,int number);
     }
+
+
 }

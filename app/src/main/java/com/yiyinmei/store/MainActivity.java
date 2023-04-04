@@ -4,16 +4,11 @@ package com.yiyinmei.store;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.content.ContentValues;
-import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-
-import com.yiyinmei.store.data.MySqliteDatabase;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +17,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     private FrameLayout mContent;
     ProductFragment mProductFragment;
-    BuyFragment mBuyFragment;
+    MaterialFragment materialFragment;
     SaleFragment mSaleFragment;
     CountFragment mCountFragment;
     FragmentManager mFragmentManager;
@@ -36,11 +31,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
         mContent = findViewById(R.id.content);
         mFragmentManager = getFragmentManager();
         mProductFragment = new ProductFragment();
-        mBuyFragment = new BuyFragment();
+        materialFragment = new MaterialFragment();
         mSaleFragment = new SaleFragment();
         mCountFragment = new CountFragment();
         mFragmentManager.beginTransaction().add(R.id.content, mProductFragment).
-                add(R.id.content, mBuyFragment).
+                add(R.id.content, materialFragment).
                 add(R.id.content, mSaleFragment).
                 add(R.id.content, mCountFragment).
                 commitAllowingStateLoss();
@@ -68,7 +63,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         mCount.setOnClickListener(this);
 
         fragmentMap.put(mProduct, mProductFragment);
-        fragmentMap.put(mBuy, mBuyFragment);
+        fragmentMap.put(mBuy, materialFragment);
         fragmentMap.put(mSale, mSaleFragment);
         fragmentMap.put(mCount, mCountFragment);
         setTextColor(mProduct);
@@ -77,7 +72,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     }
 
     private void hideAll() {
-        mFragmentManager.beginTransaction().hide(mProductFragment).hide(mBuyFragment).hide(mSaleFragment).hide(mCountFragment).commitAllowingStateLoss();
+        mFragmentManager.beginTransaction().hide(mProductFragment).hide(materialFragment).hide(mSaleFragment).hide(mCountFragment).commitAllowingStateLoss();
     }
 
     private void showFragment(Fragment fragment) {
@@ -93,7 +88,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
             return;
         }
         if (view == mBuy) {
-            showFragment(mBuyFragment);
+            showFragment(materialFragment);
             return;
         }
         if (view == mSale) {

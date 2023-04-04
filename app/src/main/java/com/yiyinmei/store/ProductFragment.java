@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.yiyinmei.store.beans.ProductInfo;
+import com.yiyinmei.store.data.DataBaseUtils;
 import com.yiyinmei.store.data.MySqliteDatabase;
 import com.yiyinmei.store.data.ProductRecycleBaseAdaper;
 
@@ -104,7 +105,7 @@ public class ProductFragment extends Fragment implements ProductRecycleBaseAdape
         contentValues.put("name",name);
         contentValues.put("store",number);
         contentValues.put("event","第一次添加");
-        database.getReadableDatabase().insert("product",null,contentValues);
+        DataBaseUtils.insert(database,"product",contentValues);
         queryAllProduct();
     }
 
@@ -130,8 +131,8 @@ public class ProductFragment extends Fragment implements ProductRecycleBaseAdape
     private void incressNumber(int number) {
         MySqliteDatabase database = new MySqliteDatabase(this.getActivity());
         ContentValues contentValues = new ContentValues();
-        contentValues.put("store", mProductInfoList.get(mPosition).getStore() - number);
-        database.getReadableDatabase().update("product", contentValues, "_id = ?", new String[]{mProductInfoList.get(mPosition).getmId() + ""});
+        contentValues.put("store", mProductInfoList.get(mPosition).getStore() + number);
+        DataBaseUtils.update(database,"product", contentValues, "_id = ?", new String[]{mProductInfoList.get(mPosition).getmId() + ""});
         queryAllProduct();
         adaper.notifyDataSetChanged();
 
@@ -140,18 +141,16 @@ public class ProductFragment extends Fragment implements ProductRecycleBaseAdape
     private void reduceTo(int number) {
         MySqliteDatabase database = new MySqliteDatabase(this.getActivity());
         ContentValues contentValues = new ContentValues();
-        contentValues.put("store", mProductInfoList.get(mPosition).getStore() + number);
-        database.getReadableDatabase().update("product", contentValues, "_id = ?", new String[]{mProductInfoList.get(mPosition).getmId() + ""});
+        contentValues.put("store", mProductInfoList.get(mPosition).getStore() - number);
+        DataBaseUtils.update(database,"product", contentValues, "_id = ?", new String[]{mProductInfoList.get(mPosition).getmId() + ""});
         queryAllProduct();
         adaper.notifyDataSetChanged();
 
     }
 
-    private void deleteItem(int positon) {
+    private void deleteItem() {
         MySqliteDatabase database = new MySqliteDatabase(this.getActivity());
-        ContentValues contentValues = new ContentValues();
-        contentValues.put("store", mProductInfoList.get(mPosition).getmId());
-        database.getReadableDatabase().delete("product","_id = ?", new String[]{mProductInfoList.get(mPosition).getmId() + ""});
+        DataBaseUtils.delete(database,"product","_id = ?", new String[]{mProductInfoList.get(mPosition).getmId() + ""});
         queryAllProduct();
         adaper.notifyDataSetChanged();
 
@@ -167,6 +166,7 @@ public class ProductFragment extends Fragment implements ProductRecycleBaseAdape
     @Override
     public void onLongClick(int position) {
         Toast.makeText(getActivity(), "onLongClick" + position, Toast.LENGTH_SHORT).show();
+        mPosition  = position;
         new AlertDialog.Builder(getActivity())
                 .setTitle("")
                 .setMessage("删除该条目吗？")
@@ -182,7 +182,7 @@ public class ProductFragment extends Fragment implements ProductRecycleBaseAdape
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         Toast.makeText(getActivity(), "确定", Toast.LENGTH_SHORT).show();
-                        deleteItem(position);
+                        deleteItem();
                     }
                 }).create().show();
     }

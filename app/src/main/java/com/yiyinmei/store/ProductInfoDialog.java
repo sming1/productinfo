@@ -43,7 +43,10 @@ public class ProductInfoDialog extends Dialog implements View.OnClickListener {
         sure.setOnClickListener(this);
         productinfoadd.setOnClickListener(this);
         productinforeduce.setOnClickListener(this);
+        mAdd = true;
+        productinfoadd.setTextColor(Color.RED);
     }
+
 
     @Override
     public void onClick(View view) {
@@ -54,7 +57,7 @@ public class ProductInfoDialog extends Dialog implements View.OnClickListener {
             if (!TextUtils.isEmpty(temp)){
                 int number = Integer.parseInt(temp);
                 if (mAdd)mProductCallBack.addProduct(number);
-                else if (mReduce) mProductCallBack.addProduct(number);
+                else if (mReduce) mProductCallBack.reduceProduct(number);
 
             }
             this.dismiss();
